@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual de Campo — Investigador Paranormal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Libre+Franklin:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0e1310;
+  --void-2:#161d18;
+  --scan:#7fce7a;
+  --scan-bright:#b9f2b0;
+  --paper:#e9e1c8;
+  --paper-2:#ddd2ae;
+  --paper-line:#c8bb92;
+  --ink:#2a2419;
+  --ink-soft:#5c5340;
+  --blood:#7e2a20;
+  --blood-bright:#a8402f;
+  --cold:#2f5266;
+  --amber:#a9711f;
+  --shadow: 0 18px 40px -18px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--void);
+  color:var(--paper);
+  font-family:'Libre Franklin',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+::selection{background:var(--scan);color:var(--void);}
+
+/* ---------- scanline / grain atmosphere ---------- */
+.atmosphere{
+  position:fixed; inset:0; pointer-events:none; z-index:5; mix-blend-mode:overlay; opacity:.5;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0px, rgba(255,255,255,.035) 1px, transparent 1px, transparent 3px);
+}
+.vignette{
+  position:fixed; inset:0; pointer-events:none; z-index:4;
+  background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.55) 100%);
+}
+
+/* ---------- header ---------- */
+header{
+  position:relative; z-index:2;
+  padding:38px 6vw 26px;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.35), transparent 70%),
+    linear-gradient(160deg, #0b0f0c 0%, #131a15 60%, #0e1310 100%);
+  border-bottom:2px solid #000;
+}
+.masthead-eyebrow{
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.28em;
+  color:var(--scan); text-transform:uppercase; opacity:.85;
+  display:flex; align-items:center; gap:10px;
+}
+.masthead-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--blood-bright);box-shadow:0 0 8px 2px var(--blood-bright);animation:blink 2.4s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+h1.title{
+  font-family:'Special Elite',monospace;
+  font-size:clamp(34px,6vw,64px);
+  margin:10px 0 6px;
+  color:var(--paper);
+  letter-spacing:.01em;
+  text-shadow:0 0 22px rgba(127,206,122,.18);
+}
+.title .accent{color:var(--scan);}
+.subtitle{
+  max-width:640px; color:#b9c2b6; font-size:15.5px; line-height:1.55; margin:0 0 22px;
+}
+.subtitle b{color:var(--scan-bright); font-weight:600;}
+
+.tabs{display:flex; gap:10px; flex-wrap:wrap;}
+.tab-btn{
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.09em; text-transform:uppercase;
+  background:transparent; color:#8a9088; border:1px solid #333d34; padding:11px 20px;
+  cursor:pointer; transition:all .18s ease; position:relative;
+}
+.tab-btn:hover{color:var(--scan-bright); border-color:var(--scan);}
+.tab-btn.active{
+  color:var(--void); background:var(--scan); border-color:var(--scan); font-weight:700;
+}
+.tab-btn .count{opacity:.65; margin-left:6px;}
+.tab-btn.active .count{opacity:.5;}
+
+main{position:relative; z-index:2; padding:32px 6vw 90px;}
+
+/* ---------- evidence board (signature interactive element) ---------- */
+.board{
+  background:linear-gradient(160deg,#10160f,#0b0f0c);
+  border:1px solid #2a332b; padding:20px 22px 22px; margin-bottom:26px;
+  box-shadow:var(--shadow);
+}
+.board-top{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:14px;}
+.board-title{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:#8fae8a;}
+.board-count{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--scan-bright);}
+.board-count b{font-size:20px; color:var(--paper);}
+
+.evidence-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;}
+.ev-btn{
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  background:#0c110d; border:1px solid #29332a; padding:12px 8px 10px; cursor:pointer;
+  transition:all .16s ease; position:relative;
+}
+.ev-btn svg{width:26px;height:26px; stroke:#5b6b5a; fill:none; stroke-width:1.6; transition:stroke .16s ease;}
+.ev-btn .ev-label{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.04em; color:#697568; text-align:center; line-height:1.3;}
+.ev-btn:hover{border-color:#4a5c48;}
+.ev-btn.on{border-color:var(--scan); background:rgba(127,206,122,.08); box-shadow:inset 0 0 18px rgba(127,206,122,.12);}
+.ev-btn.on svg{stroke:var(--scan-bright); filter:drop-shadow(0 0 5px rgba(127,206,122,.6));}
+.ev-btn.on .ev-label{color:var(--scan-bright);}
+.ev-btn.dim{opacity:.28;}
+.ev-btn.dim:hover{opacity:.55;}
+
+.board-tools{display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap;}
+.search-input{
+  flex:1; min-width:180px; background:#0c110d; border:1px solid #29332a; color:var(--paper);
+  padding:10px 12px; font-family:'Libre Franklin',sans-serif; font-size:14px;
+}
+.search-input:focus{outline:none; border-color:var(--scan);}
+.search-input::placeholder{color:#5b6558;}
+.clear-btn{
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
+  background:none; color:#8a9088; border:1px solid #333d34; padding:10px 16px; cursor:pointer; white-space:nowrap;
+}
+.clear-btn:hover{color:var(--scan-bright); border-color:var(--scan);}
+
+/* ---------- ghost grid ---------- */
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:16px;}
+.card{
+  background:var(--paper); color:var(--ink); padding:18px 18px 16px; cursor:pointer;
+  border:1px solid var(--paper-line); position:relative; transition:transform .14s ease, box-shadow .14s ease;
+  box-shadow:0 8px 18px -10px rgba(0,0,0,.5);
+}
+.card::before{
+  content:''; position:absolute; top:0; left:16px; width:34px; height:10px;
+  background:#b7a877; opacity:.55; transform:rotate(-2deg);
+}
+.card:hover{transform:translateY(-3px); box-shadow:0 16px 30px -12px rgba(0,0,0,.55);}
+.card .case-no{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-soft); letter-spacing:.08em;}
+.card h3{
+  font-family:'Special Elite',monospace; font-size:21px; margin:5px 0 8px; color:var(--ink);
+}
+.card .teaser{font-size:13px; line-height:1.45; color:var(--ink-soft); margin-bottom:12px; min-height:36px;}
+.chips{display:flex; gap:6px; flex-wrap:wrap;}
+.chip{
+  font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.04em; text-transform:uppercase;
+  padding:4px 7px; background:var(--cold); color:#dfeef5; display:flex; align-items:center; gap:4px;
+}
+.chip svg{width:11px;height:11px; stroke:#dfeef5; fill:none; stroke-width:2;}
+.card .origin-tag{
+  margin-top:11px; font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#8a7d5a; letter-spacing:.03em;
+  border-top:1px dashed var(--paper-line); padding-top:8px;
+}
+.empty-msg{
+  grid-column:1/-1; text-align:center; padding:60px 20px; color:#6f7a6d;
+  font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.04em;
+}
+
+/* ---------- cursed items grid ---------- */
+.cursed-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
+.cursed-card{
+  background:linear-gradient(160deg,#151009,#0e0c08);
+  border:1px solid #3a2f1c; padding:20px 18px; cursor:pointer; position:relative;
+  transition:transform .14s ease, border-color .14s ease;
+}
+.cursed-card:hover{transform:translateY(-3px); border-color:var(--amber);}
+.cursed-card .glyph{width:38px;height:38px; stroke:var(--amber); fill:none; stroke-width:1.4; margin-bottom:10px; filter:drop-shadow(0 0 6px rgba(169,113,31,.4));}
+.cursed-card h3{font-family:'Special Elite',monospace; font-size:19px; margin:0 0 8px; color:#f0e2c4;}
+.cursed-card p{font-size:13px; color:#b9ab8c; line-height:1.45; margin:0;}
+
+/* ---------- modal ---------- */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(4,6,4,.82); z-index:50; display:none;
+  align-items:flex-start; justify-content:center; padding:5vh 4vw; overflow-y:auto;
+  backdrop-filter:blur(2px);
+}
+.modal-backdrop.show{display:flex;}
+.modal{
+  background:var(--paper); color:var(--ink); max-width:720px; width:100%;
+  box-shadow:0 40px 90px -20px rgba(0,0,0,.7); position:relative; margin:auto 0;
+  animation:riseIn .22s ease;
+}
+@keyframes riseIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+.modal-head{
+  padding:26px 28px 18px; border-bottom:1px dashed var(--paper-line); position:relative;
+}
+.modal-head .case-no{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-soft); letter-spacing:.1em;}
+.modal-head h2{font-family:'Special Elite',monospace; font-size:32px; margin:6px 0 10px; color:var(--ink); padding-right:40px;}
+.modal-close{
+  position:absolute; top:20px; right:22px; background:none; border:none; cursor:pointer;
+  font-family:'JetBrains Mono',monospace; font-size:22px; color:var(--ink-soft); line-height:1;
+}
+.modal-close:hover{color:var(--blood-bright);}
+.modal-origin{font-size:13px; font-style:italic; color:var(--ink-soft); line-height:1.5;}
+.modal-body{padding:22px 28px 30px;}
+.section-label{
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-soft); margin:0 0 8px; display:flex; align-items:center; gap:8px;
+}
+.section-label::after{content:''; flex:1; height:1px; background:var(--paper-line);}
+.section{margin-bottom:20px;}
+.section p{font-size:14.5px; line-height:1.6; margin:0;}
+
+.stamp-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px;}
+.stamp{
+  flex:1; min-width:230px; padding:14px 16px; border:2.5px solid; position:relative; transform:rotate(-.6deg);
+}
+.stamp.strength{border-color:var(--blood-bright); color:var(--blood-bright);}
+.stamp.weakness{border-color:var(--cold); color:var(--cold); transform:rotate(.5deg);}
+.stamp .stamp-title{font-family:'Special Elite',monospace; font-size:13px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px;}
+.stamp p{color:var(--ink); font-size:13.5px; line-height:1.5;}
+
+.evidence-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+.evidence-tag{
+  display:flex; align-items:center; gap:7px; background:var(--cold); color:#e4f2f8;
+  padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em;
+}
+.evidence-tag svg{width:15px;height:15px; stroke:#e4f2f8; fill:none; stroke-width:1.8;}
+
+.speed-tag{
+  display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; background:#efe6cb;
+  border:1px solid var(--paper-line); padding:7px 11px; color:var(--ink); margin-bottom:18px;
+}
+.speed-tag b{color:var(--blood-bright);}
+
+.tip-box{
+  background:#f2ecd8; border-left:4px solid var(--scan); padding:12px 16px; font-size:13.5px; line-height:1.55;
+}
+.tip-box b{color:var(--ink);}
+
+/* cursed item extra tables */
+.mini-table{width:100%; border-collapse:collapse; font-size:12.8px;}
+.mini-table th{
+  text-align:left; font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-soft); border-bottom:1px solid var(--paper-line); padding:6px 8px;
+}
+.mini-table td{padding:8px; border-bottom:1px solid #e2d8b8; vertical-align:top; line-height:1.4;}
+.mini-table tr:last-child td{border-bottom:none;}
+.mini-table .name-cell{font-weight:700; white-space:nowrap;}
+.mini-table .chance{font-family:'JetBrains Mono',monospace; color:var(--blood-bright); white-space:nowrap;}
+
+.risk-box{background:#f4e7d8; border-left:4px solid var(--amber); padding:12px 16px; font-size:13.5px; line-height:1.55; margin-bottom:18px;}
+.risk-box b{color:var(--blood-bright);}
+
+footer{
+  position:relative; z-index:2; text-align:center; padding:30px 20px 50px; color:#4b5449;
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.05em;
+}
+
+@media (max-width:560px){
+  .stamp-row{flex-direction:column;}
+  .stamp{transform:none !important;}
+  .modal-head h2{font-size:26px;}
+}
+</style>
+</head>
+<body>
+
+<div class="atmosphere"></div>
+<div class="vignette"></div>
+
+<header>
+  <div class="masthead-eyebrow"><span class="dot"></span> EXPEDIENTE ACTIVO · SIN CLASIFICAR</div>
+  <h1 class="title">Manual de Campo del <span class="accent">Investigador Paranormal</span></h1>
+  <p class="subtitle">Referencia de campo no oficial para <b>Phasmophobia</b>: las 27 entidades conocidas, sus evidencias, fortalezas, debilidades y comportamientos verificados — más el expediente completo de los 7 objetos malditos. Filtra por evidencia como en tu diario de investigación y confirma al sospechoso antes de que él te confirme a ti.</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="ghosts">Fantasmas <span class="count">27</span></button>
+    <button class="tab-btn" data-tab="cursed">Objetos Malditos <span class="count">07</span></button>
+  </div>
+</header>
+
+<main>
+  <section id="tab-ghosts">
+    <div class="board">
+      <div class="board-top">
+        <span class="board-title">Tablero de evidencias — marca lo confirmado</span>
+        <span class="board-count"><b id="matchCount">27</b> / 27 sospechosos</span>
+      </div>
+      <div class="evidence-grid" id="evidenceGrid"></div>
+      <div class="board-tools">
+        <input class="search-input" id="searchInput" placeholder="Buscar entidad por nombre…">
+        <button class="clear-btn" id="clearBtn">Reiniciar tablero</button>
+      </div>
+    </div>
+    <div class="grid" id="ghostGrid"></div>
+  </section>
+
+  <section id="tab-cursed" style="display:none;">
+    <div class="cursed-grid" id="cursedGrid"></div>
+  </section>
+</main>
+
+<footer>Manual de campo no oficial · Datos de comportamiento verificados a partir de la investigación de la comunidad · v0.15+</footer>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+/* ============================= EVIDENCIA ============================= */
+const EVIDENCE = {
+  emf:      { label:"EMF Nivel 5",        short:"EMF 5",   icon:`<path d="M4 18 L4 10 M9 18 L9 6 M14 18 L14 12 M19 18 L19 3"/>` },
+  dots:     { label:"Proyector D.O.T.S.", short:"D.O.T.S.", icon:`<circle cx="6" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="6" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="18" r="1.3" fill="currentColor" stroke="none"/>` },
+  uv:       { label:"Huellas UV",         short:"UV",       icon:`<path d="M12 3 C 7 3 5 7 5 11 C5 15 8 18 8 21 M12 3 C17 3 19 7 19 11 C19 15 16 18 16 21 M12 6 C9 6 8 9 8 11 C8 14 10 15 10 18 M12 6 C15 6 16 9 16 11 C16 14 14 15 14 18"/>` },
+  freezing: { label:"Temperatura Bajo Cero", short:"Frío", icon:`<path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11M6 4l1 3-3 1M18 4l-1 3 3 1M6 20l1-3-3-1M18 20l-1-3 3-1"/>` },
+  orbs:     { label:"Orbes Fantasma",      short:"Orbes",    icon:`<circle cx="12" cy="12" r="7"/><circle cx="16" cy="8" r="1.4" fill="currentColor" stroke="none"/>` },
+  writing:  { label:"Escritura Fantasma",  short:"Escritura",icon:`<path d="M4 19 L4 15 L15 4 L19 8 L8 19 Z M13 6 L17 10"/>` },
+  spiritbox:{ label:"Caja de Espíritus",   short:"Caja Esp.",icon:`<rect x="4" y="9" width="16" height="9" rx="1"/><path d="M9 9 V5 M15 9 V5 M7 13.5 h3 M14 13.5 h3"/>` }
+};
+const EV_ORDER = ["emf","dots","uv","freezing","orbs","writing","spiritbox"];
+
+/* ============================= FANTASMAS ============================= */
+const GHOSTS = [
+{id:"banshee", name:"Banshee", evidence:["dots","orbs","uv"],
+ strength:"Se fija en una única presa y la persigue de forma prioritaria durante las cacerías, ignorando a otros investigadores aunque estén más cerca.",
+ weakness:"Su aullido es inconfundible: un Micrófono Parabólico revela un canto agudo único, y tiene mayor probabilidad de generar un evento de canto fantasmal.",
+ behavior:"Elige una 'víctima' fija al inicio del contrato y la prioriza durante toda la investigación. Desde que se fijó su género, la Banshee siempre se manifiesta como espíritu femenino y puede tener hasta dos eventos de canto exclusivos de su tipo.",
+ tip:"No la confundas con el Myling: la Banshee no hace más ruido de lo normal en general, solo canta con más frecuencia. Si el fantasma persigue siempre a la misma persona en una cacería grupal, es una señal fuerte.",
+ origin:"Basada en la 'bean sídhe' del folclore irlandés: un espíritu femenino cuyo lamento anuncia una muerte cercana."},
+
+{id:"dayan", name:"Dayan", evidence:["emf","orbs","spiritbox"],
+ strength:"Gana velocidad y agresividad si los jugadores se mueven dentro de un radio de 10 metros.",
+ weakness:"Pierde fuerza y se ralentiza si los jugadores permanecen completamente quietos en su cercanía.",
+ behavior:"Dentro de 10 metros ajusta velocidad y umbral de cacería según el jugador más próximo: quieto, el umbral baja a 45% y se mueve a 1.2 m/s; en movimiento, sube a 65% y acelera a 2.25 m/s. Es un fantasma exclusivamente femenino: nunca usa nombre ni modelo masculino.",
+ speed:"1.2 m/s (jugador quieto) — 2.25 m/s (jugador en movimiento)",
+ tip:"Si el fantasma tiene nombre o modelo masculino, descártala de inmediato (junto a la Banshee, es de las únicas con género fijo). Quedarte inmóvil durante una cacería reduce mucho su velocidad.",
+ origin:"Inspirada en la 'dayan' del folclore de India y Pakistán: espíritu vengativo de una mujer que sufrió una muerte traumática."},
+
+{id:"deogen", name:"Deogen", evidence:["spiritbox","writing","dots"],
+ strength:"Siempre conoce la ubicación exacta de los jugadores durante una cacería y es extremadamente rápido a distancia.",
+ weakness:"Se vuelve extremadamente lento en distancias cortas, apenas 0.4 m/s cerca de un jugador.",
+ behavior:"Su respiración pesada suele oírse por la Caja de Espíritus. No necesita línea de visión para saber dónde estás en una cacería, pero paga ese poder con una lentitud extrema al acercarse.",
+ speed:"3 m/s lejos del jugador → 0.4 m/s cerca del jugador",
+ tip:"Se confunde con el Revenant por sus cambios de velocidad, pero el Revenant sí necesita línea de visión. Haz bucles cerrados: si se vuelve muy lento al acercarse sin importar si te ve, es un Deogen."},
+
+{id:"demon", name:"Demonio", evidence:["uv","writing","freezing"],
+ strength:"Puede iniciar cacerías incluso con cordura muy alta y encadenarlas con más frecuencia que cualquier otro tipo.",
+ weakness:"Especialmente vulnerable al crucifijo, cuyo radio de efecto es mayor contra él, y a la quema de incienso.",
+ behavior:"No respeta los umbrales habituales de cordura: puede cazar incluso por encima del 70% de cordura del equipo, algo casi imposible en otros tipos. Es letal en las primeras fases del contrato, cuando el equipo baja la guardia.",
+ tip:"Si sufres una cacería con la cordura del equipo por encima del 70%, es el principal sospechoso. Coloca un crucifijo cerca de la sala favorita en cuanto lo confirmes."},
+
+{id:"gallu", name:"Gallu", evidence:["emf","uv","spiritbox"],
+ strength:"Usar equipo de protección (crucifijo, incienso, sal) cerca de él lo enfurece, y ese equipo pierde efectividad mientras dura la furia.",
+ weakness:"El estado de furia lo agota: tras esa fase, el equipo de protección vuelve a ser más eficaz de lo normal contra él.",
+ behavior:"Alterna entre tres estados —normal, enfurecido y debilitado—. Pisar sal o recibir incienso/crucifijo lo enfurece (más rápido en la siguiente cacería); al terminar esa cacería cae a debilitado antes de normalizarse. Igual que el Wraith, no deja huellas en la sal mientras está enfurecido.",
+ tip:"No lo confundas con el Wraith: comparten EMF 5 y Caja de Espíritus y ambos pueden no dejar huellas en sal. Si notas velocidades de cacería inconsistentes (rápido, luego lento), sospecha del Gallu.",
+ origin:"Los 'gallu' (o galla) son demonios del inframundo en la mitología sumeria y mesopotámica."},
+
+{id:"goryo", name:"Goryo", evidence:["emf","uv","dots"],
+ strength:"Rara vez se aleja de su sala favorita, lo que facilita localizarlo.",
+ weakness:"Su D.O.T.S. solo se confirma observando el proyector a través de una cámara de vídeo, nunca a simple vista en la sala.",
+ behavior:"Es un fantasma poco itinerante: casi todo el contrato permanece en su habitación favorita. La silueta de D.O.T.S. solo aparece si nadie está físicamente presente y se vigila mediante un monitor.",
+ tip:"Coloca una cámara apuntando al proyector y sal de la sala: si ves la silueta solo en el monitor y no en persona, es una señal fuerte de Goryo.",
+ origin:"En el folclore japonés, los 'goryō' son espíritus vengativos de nobles que murieron injustamente."},
+
+{id:"hantu", name:"Hantu", evidence:["uv","orbs","freezing"],
+ strength:"Se vuelve más rápido cuanto más fría está la habitación, hasta 2.7 m/s.",
+ weakness:"Se ralentiza notablemente en ambientes cálidos.",
+ behavior:"Con el interruptor general apagado deja ver su aliento congelado con claridad. Es de los pocos fantasmas cuya velocidad depende directamente de la temperatura ambiente.",
+ speed:"Hasta 2.7 m/s en frío intenso",
+ tip:"Apaga el interruptor general y observa la temperatura: si acelera notablemente al enfriarse la sala, es un Hantu. No lo confundas con el Jinn, que depende de la electricidad, no del frío.",
+ origin:"'Hantu' es la palabra general para 'fantasma' en el folclore malayo e indonesio."},
+
+{id:"jinn", name:"Jinn", evidence:["emf","uv","freezing"],
+ strength:"Con el interruptor general encendido y línea de visión directa, acelera hasta 2.5 m/s y puede drenar hasta un 25% de cordura de golpe.",
+ weakness:"Sin electricidad o sin línea de visión, pierde por completo su impulso de velocidad.",
+ behavior:"Depende de la red eléctrica de la casa para potenciarse. Apagar la caja de fusibles es la forma más directa de neutralizar su ventaja.",
+ speed:"2.5 m/s con electricidad y línea de visión",
+ tip:"Apaga el interruptor general antes de una cacería: si deja de notarse diferencia de velocidad, era un Jinn. No lo confundas con el Raiju, que reacciona a aparatos electrónicos concretos, no al interruptor general.",
+ origin:"Los 'yinn' o genios son seres sobrenaturales del folclore árabe e islámico."},
+
+{id:"mare", name:"Mare", evidence:["spiritbox","orbs","writing"],
+ strength:"Es más agresivo y caza con cordura más alta cuando está a oscuras, y apaga luces con frecuencia.",
+ weakness:"Se calma notablemente si las luces permanecen encendidas.",
+ behavior:"Prefiere la oscuridad y trabaja activamente para conseguirla, apagando luces más que otros tipos.",
+ tip:"Mantén las luces encendidas durante toda la investigación: si la actividad y las cacerías bajan claramente, sospecha del Mare.",
+ origin:"La 'mare' (origen de la palabra 'nightmare') es un espíritu del folclore germánico y escandinavo que se sienta sobre el pecho de quien duerme."},
+
+{id:"moroi", name:"Moroi", evidence:["spiritbox","writing","freezing"],
+ strength:"Se vuelve más rápido y puede maldecir a un jugador a través de la Caja de Espíritus para acelerar su pérdida de cordura, sobre todo con cordura de equipo baja.",
+ weakness:"Es más débil cuanto más alta esté la cordura del equipo, y el efecto cegador del incienso dura más tiempo sobre él.",
+ behavior:"Castiga a los equipos que dejan caer demasiado su cordura colectiva, volviéndose más veloz y agresivo. El incienso, en cambio, es especialmente efectivo para contenerlo.",
+ tip:"Si un jugador pierde cordura de forma anómala tras usar la Caja de Espíritus, sospecha de una maldición de Moroi. Mantened la cordura del equipo alta con pastillas.",
+ origin:"El 'moroi' es una criatura del folclore rumano, un tipo de no-muerto emparentado con los relatos de vampiros."},
+
+{id:"myling", name:"Myling", evidence:["emf","uv","writing"],
+ strength:"Durante las cacerías es más silencioso de lo normal más allá de corta distancia.",
+ weakness:"Genera sonidos paranormales con mucha más frecuencia, fácilmente detectables con el Micrófono Parabólico.",
+ behavior:"Reduce el alcance de sus sonidos de cacería, lo que dificulta oírlo acercarse desde lejos, pero compensa con una actividad sonora paranormal mucho más frecuente en general.",
+ tip:"Si no oyes al fantasma acercarse hasta que está muy cerca, pero el Micrófono Parabólico capta actividad constante, sospecha del Myling.",
+ origin:"En el folclore escandinavo, un 'myling' es el espíritu de un niño no bautizado o abandonado que no puede descansar hasta ser enterrado correctamente."},
+
+{id:"obake", name:"Obake", evidence:["emf","uv","orbs"],
+ strength:"Solo deja huellas UV el 75% de las veces en vez del 100% habitual, y puede cambiar de forma durante una cacería.",
+ weakness:"Su huella distintiva de seis dedos lo delata (dos huellas en interruptores de luz, cinco en teclados o puertas de prisión), y sus cambios de modelo ocurren en parpadeos muy concretos.",
+ behavior:"Durante las cacerías cambia de modelo fantasmal en parpadeos específicos (aproximadamente el 12º, 27º, 39º, 54º, 62º, 80º, 105º, 120º y 132º), difícil de notar a simple vista pero un sello inconfundible si se detecta.",
+ tip:"Examina de cerca cualquier huella UV: una marca de seis dedos es un Obake garantizado. Si el fantasma parece 'cambiar de cara' durante una cacería, confírmalo con una segunda observación.",
+ origin:"En el folclore japonés, un 'obake' es una criatura sobrenatural capaz de cambiar de forma."},
+
+{id:"obambo", name:"Obambo", evidence:["writing","uv","dots"],
+ strength:"En estado agresivo, inicia cacerías antes (con hasta 65% de cordura) y se mueve más rápido (≈1.96 m/s).",
+ weakness:"En estado calmado tarda mucho más en cazar (con cordura tan baja como 10%) y es más lento (≈1.45 m/s), por lo que resulta más fácil de rastrear.",
+ behavior:"Alterna entre un estado calmado y uno agresivo cada 2 minutos aproximadamente, incluso a mitad de una cacería, por lo que puede 'sentirse' como dos fantasmas distintos a lo largo del contrato.",
+ speed:"≈1.45 m/s (calmado) / ≈1.96 m/s (agresivo)",
+ tip:"Cronometra dos cacerías: si la velocidad y agresividad cambian con un patrón de unos 2 minutos, es un Obambo. No lo confundas con la Dayan, cuyo cambio depende del movimiento del jugador, no del tiempo.",
+ origin:"El 'obambo' proviene de la mitología centroafricana: el espíritu de alguien que nunca recibió un entierro adecuado."},
+
+{id:"oni", name:"Oni", evidence:["emf","freezing","dots"],
+ strength:"Es mucho más activo e interactúa con el entorno con más frecuencia cuando hay varios jugadores presentes.",
+ weakness:"Es menos propenso a desvanecerse u ocultarse durante las cacerías, lo que facilita verlo y confirmarlo; tampoco genera eventos de niebla.",
+ behavior:"Prospera en presencia de grupos: cuanta más gente haya cerca, más interactúa con puertas, objetos y luces.",
+ tip:"Investiga en grupo cerca de la sala favorita: si la actividad se dispara con más gente presente, sospecha del Oni.",
+ origin:"Los 'oni' son demonios u ogros del folclore japonés, representados como criaturas cornudas y feroces."},
+
+{id:"onryo", name:"Onryo", evidence:["spiritbox","orbs","freezing"],
+ strength:"Trata las llamas encendidas como si fueran un crucifijo: apagar tres fuentes de fuego provoca una cacería inmediata, sea cual sea la cordura.",
+ weakness:"Es menos probable que inicie una cacería mientras haya llamas encendidas cerca.",
+ behavior:"Cualquier fuente de fuego (velas, encendedores, faroles) que se apague cerca del Onryo cuenta como una 'ofensa'; a la tercera, inicia una cacería de inmediato.",
+ tip:"Coloca varias fuentes de fuego encendidas cerca de la sala favorita. Si las apaga y a la tercera comienza una cacería instantánea, es un Onryo.",
+ origin:"En el folclore japonés, un 'onryō' es un espíritu vengativo, a menudo femenino, que regresa por una muerte injusta."},
+
+{id:"phantom", name:"Phantom", evidence:["spiritbox","uv","dots"],
+ strength:"Drena la cordura rápidamente cuando un jugador lo mira directamente durante un evento.",
+ weakness:"Desaparece brevemente en cuanto se le toma una fotografía.",
+ behavior:"Mirar de frente al Phantom durante una manifestación acelera la pérdida de cordura del jugador, pero fotografiarlo lo hace desvanecerse al instante.",
+ tip:"Si el fantasma se desvanece justo al fotografiarlo durante un evento, es casi con certeza un Phantom."},
+
+{id:"poltergeist", name:"Poltergeist", evidence:["spiritbox","uv","writing"],
+ strength:"Puede lanzar varios objetos a la vez y a gran velocidad durante sus interacciones.",
+ weakness:"Es mucho menos efectivo —y por tanto más fácil de descartar— en habitaciones sin objetos sueltos que lanzar.",
+ behavior:"Es el fantasma más 'ruidoso' en cuanto a manipulación de objetos, capaz de arrojar varios elementos a la vez en lugar de uno solo.",
+ tip:"Si ves múltiples objetos volar a la vez, es el principal sospechoso. Retirar objetos sueltos de la sala reduce mucho su actividad visible.",
+ origin:"'Poltergeist' es un término alemán que significa literalmente 'espíritu ruidoso'."},
+
+{id:"raiju", name:"Raiju", evidence:["emf","orbs","dots"],
+ strength:"Se acelera considerablemente cerca de aparatos electrónicos activos (televisores, radios, ordenadores encendidos).",
+ weakness:"Lejos de la electrónica encendida se mueve más lento, y puede interferir dispositivos desde una distancia mayor que otros fantasmas durante las cacerías.",
+ behavior:"Se alimenta de la energía eléctrica activa a su alrededor, acelerando notablemente cerca de dispositivos encendidos.",
+ tip:"Apaga la electrónica cercana antes de una cacería: si se ralentiza claramente, es un Raiju. No lo confundas con el Jinn, que depende del interruptor general, no de aparatos concretos.",
+ origin:"En la mitología japonesa, el 'raiju' es una bestia asociada al trueno, compañera del dios Raijin."},
+
+{id:"revenant", name:"Revenant", evidence:["orbs","writing","freezing"],
+ strength:"Con línea de visión directa sobre un jugador durante una cacería, se vuelve extremadamente rápido.",
+ weakness:"Sin línea de visión sobre ningún jugador, se mueve muy lentamente, casi a paso de tortuga.",
+ behavior:"Es engañosamente peligroso: mientras no te haya detectado se arrastra con lentitud, pero en cuanto te ve durante una cacería, acelera de forma dramática.",
+ tip:"Rompe la línea de visión al empezar una cacería y no la recuperes: si se ralentiza notablemente al perderte de vista, es un Revenant.",
+ origin:"Un 'revenant' es, en el folclore europeo, un cadáver reanimado que regresa de la tumba con fines vengativos."},
+
+{id:"shade", name:"Shade", evidence:["emf","writing","freezing"],
+ strength:"Es el fantasma más pasivo del juego: casi no interactúa con el entorno mientras haya un jugador en su misma sala.",
+ weakness:"No puede iniciar una cacería si la cordura media del equipo supera el 35%, y su actividad cae todavía más cuantos más jugadores haya presentes.",
+ behavior:"A cordura completa tiene prácticamente un 0% de probabilidad de generar un evento fantasmal, probabilidad que solo sube un 2% por cada punto de cordura perdido. Conviene salir de la sala y vigilar por cámara para conseguir evidencia.",
+ tip:"Si el fantasma no interactúa con nadie presente, sal de la sala y vigila por cámara: el Shade solo se activa cuando se siente 'solo'. Reunir a todo el equipo cerca también lo inhibe.",
+ origin:"'Shade' es un término clásico para referirse a la sombra o espectro de un difunto."},
+
+{id:"spirit", name:"Spirit", evidence:["emf","spiritbox","writing"],
+ strength:"No tiene ninguna fortaleza especial: es el fantasma base del juego, sin mecánicas únicas añadidas.",
+ weakness:"El efecto cegador de la barrita de incienso dura más tiempo sobre él que sobre la mayoría de los demás tipos.",
+ behavior:"Es el arquetipo original de fantasma: sin mecánica especial de velocidad, comportamiento o entorno, suele identificarse por descarte una vez confirmadas sus tres evidencias.",
+ tip:"Si no observas ningún comportamiento inusual y las evidencias apuntan a EMF 5, Caja de Espíritus y Escritura Fantasma, es probablemente un Spirit. El incienso es tu mejor amigo contra él."},
+
+{id:"thaye", name:"Thaye", evidence:["orbs","writing","dots"],
+ strength:"Es más fuerte y activo al principio de la investigación.",
+ weakness:"Se debilita, se vuelve menos activo y más lento a medida que avanza el tiempo de contrato.",
+ behavior:"'Envejece' con el paso del contrato: cuanto más tiempo llevéis investigando, más se reduce su actividad y velocidad, siendo más peligroso en los primeros minutos que al final.",
+ tip:"Compara su actividad al inicio frente a los últimos minutos: si notas una caída clara con el paso del tiempo (no por cordura, sino por duración), sospecha del Thaye."},
+
+{id:"mimic", name:"The Mimic", evidence:["spiritbox","uv","freezing"], extraEvidence:"orbs",
+ strength:"Copia el comportamiento, velocidad y umbrales de cacería de otro tipo de fantasma, cambiando de 'modelo a imitar' cada 30 segundos a 2 minutos (nunca durante una cacería).",
+ weakness:"No puede copiar los tipos de evidencia reales de otros fantasmas, y siempre deja Orbes Fantasma de más aunque esa no sea una de sus evidencias.",
+ behavior:"Junto a The Twins, es de los más difíciles de identificar: puede parecer un Poltergeist lanzando objetos o un Revenant acelerando en cacería, pero su combinación real de evidencia (Caja de Espíritus, UV y Temperatura Bajo Cero) nunca cambia.",
+ tip:"Si el comportamiento apunta a un tipo de fantasma pero también ves Orbes Fantasma que no encajan con esa evidencia esperada, sospecha del Mimic."},
+
+{id:"the-twins", name:"The Twins", evidence:["emf","spiritbox","freezing"],
+ strength:"En realidad son dos entidades que pueden interactuar con el entorno en dos ubicaciones distintas al mismo tiempo.",
+ weakness:"Su comportamiento resulta inconsistente porque una de las dos 'mitades' puede ser más rápida o activa que la otra, dificultando fiarse de una sola observación.",
+ behavior:"Se manifiestan como dos entidades gemelas que pueden actuar simultáneamente en distintos puntos del mapa, provocando interacciones dobles difíciles de explicar con un fantasma normal.",
+ tip:"Si detectas dos interacciones simultáneas en ubicaciones distintas al mismo tiempo (por ejemplo, dos EMF 5 a la vez en salas diferentes), es una señal fuerte de The Twins."},
+
+{id:"wraith", name:"Wraith", evidence:["emf","spiritbox","dots"],
+ strength:"Puede teletransportarse junto a un jugador (con un pico de EMF nivel 2 en el momento del salto) y atravesar paredes fuera de eventos fantasmales.",
+ weakness:"Nunca deja huellas al caminar sobre sal esparcida, a diferencia de cualquier otro tipo.",
+ behavior:"Es el único fantasma que puede desplazarse literalmente a través de las paredes en su comportamiento normal (no durante un evento fantasmal), y su teletransporte junto a los jugadores lo hace especialmente impredecible.",
+ tip:"Esparce sal en los pasillos de la sala favorita: si tras varias interacciones nunca aparecen huellas, tienes un Wraith casi confirmado.",
+ origin:"En el folclore escocés, un 'wraith' es la aparición espectral de una persona, a veces vista justo antes o después de su muerte."},
+
+{id:"yokai", name:"Yokai", evidence:["spiritbox","orbs","dots"],
+ strength:"Puede iniciar cacerías antes de lo normal si los jugadores hablan cerca de él (su umbral de cordura para cazar sube hasta 80% con voz cercana).",
+ weakness:"Durante una cacería, su alcance auditivo es muy limitado: solo percibe voces que estén realmente cerca de él.",
+ behavior:"Conocido extraoficialmente como el 'fantasma tonto', tiene percepción muy reducida durante las cacerías y no cuenta con línea de visión completa, pero se irrita notablemente con el chat de voz cercano.",
+ tip:"Mantened silencio de voz por proximidad al fantasma: si las cacerías se disparan justo al hablar cerca de él, es un Yokai. Alejarse un poco durante una cacería suele bastar para dejar de ser detectado por sonido.",
+ origin:"'Yōkai' es el término general en el folclore japonés para espíritus, demonios y criaturas sobrenaturales."},
+
+{id:"yurei", name:"Yurei", evidence:["orbs","freezing","dots"],
+ strength:"Drena la cordura de forma más intensa que otros tipos mientras los jugadores permanecen en su sala.",
+ weakness:"El humo del incienso lo atrapa en la sala fantasma durante 90 segundos.",
+ behavior:"Puede realizar un 'doble toque de puerta': cierra puertas principales incluso fuera de eventos o cacerías, y las puertas que manipula quedan siempre completamente abiertas o completamente cerradas, nunca a medias.",
+ tip:"Si la cordura cae de forma inusualmente rápida dentro de una sala concreta, sospecha del Yurei. Usar incienso justo en la sala favorita nada más confirmarla lo inmoviliza para recoger evidencia con calma.",
+ origin:"En el folclore japonés, un 'yūrei' es el espíritu de una persona fallecida, frecuentemente ligado a una muerte violenta o injusta."}
+];
+
+/* ============================= OBJETOS MALDITOS ============================= */
+const CURSED = [
+{id:"ouija", name:"Tabla Ouija",
+ glyph:`<path d="M4 6h16v12H4z"/><circle cx="12" cy="12" r="3"/><path d="M8 6v-2M16 6v-2"/>`,
+ desc:"Permite formular preguntas directas al fantasma. Al colocarla sobre una superficie plana e interactuar, una plancheta se posiciona sobre ella lista para responder.",
+ mechanics:"Las preguntas pueden hacerse por voz o mediante el menú de texto. Si la pregunta se reconoce, la plancheta se mueve para responder «sí» / «no» o deletrear una respuesta. Cada pregunta contestada con éxito (salvo pedir «jugar al escondite») cuesta entre un 5% y un 50% de cordura, según cuánto ayude esa respuesta a identificar al fantasma.",
+ risk:"Dejarla activa demasiado tiempo, tener muy poca cordura, o pedir «jugar al escondite», puede romper la tabla y desencadenar una cacería maldita.",
+ tip:"Pregunta primero por datos poco reveladores (como el año de muerte) antes de arriesgarte con preguntas de ubicación, que cuestan mucha más cordura."},
+
+{id:"musicbox", name:"Caja de Música",
+ glyph:`<rect x="4" y="9" width="16" height="10" rx="1"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/><circle cx="12" cy="14" r="2"/>`,
+ desc:"Un pequeño objeto musical que, al activarse, reproduce una melodía durante unos 30 segundos mientras el fantasma canta junto a ella.",
+ mechanics:"Siguiendo el canto del fantasma se puede localizar su sala con facilidad, incluso en las primeras fases de la investigación.",
+ risk:"Puede provocar una cacería maldita si se sostiene demasiado cerca del fantasma mientras suena, si el fantasma está deambulando, o si se lanza mientras está activa.",
+ tip:"Actívala y aléjate un poco antes de escuchar: es de las herramientas más seguras para localizar la sala favorita rápidamente."},
+
+{id:"summoning", name:"Círculo de Invocación",
+ glyph:`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="4.5" r="1"/><circle cx="18.5" cy="9" r="1"/><circle cx="16" cy="17" r="1"/><circle cx="8" cy="17" r="1"/><circle cx="5.5" cy="9" r="1"/>`,
+ desc:"El único objeto maldito inamovible: un gran pentagrama en el suelo rodeado de cinco velas.",
+ mechanics:"Encender las cinco velas con un mechero o encendedor teletransporta al fantasma al centro del círculo.",
+ risk:"Se necesita más de un 16% de cordura para completar el ritual, o la vela se apaga sola; atraer así al fantasma no está exento de peligro si no hay una vía de escape preparada.",
+ tip:"Ideal para forzar evidencia en fantasmas muy pasivos (como el Shade): enciende las velas, consigue tu evidencia rápido y ten claro tu punto de huida de antemano."},
+
+{id:"voodoo", name:"Muñeco Vudú",
+ glyph:`<circle cx="12" cy="7" r="3"/><path d="M9 10 L9 20 M15 10 L15 20 M6 13 L18 13"/><path d="M12 5 L12 9 M10 5 L14 9" stroke-width="1"/>`,
+ desc:"Un pequeño muñeco cosido con 10 alfileres clavados en el cuerpo y uno en el corazón.",
+ mechanics:"Cada interacción clava aleatoriamente uno de los alfileres restantes, forzando una interacción del fantasma (EMF 5, huellas UV, luces, puertas, objetos lanzados, entre otras) y restando un 5% de cordura al usuario.",
+ risk:"Si el alfiler clavado es el del corazón, se pierde un 10% de cordura adicional y se desencadena una cacería maldita de inmediato. Con la cordura a 0%, se clavan todos los alfileres restantes a la vez, incluido el del corazón, garantizando la cacería.",
+ tip:"Es de las opciones más baratas en cordura para forzar evidencia en fantasmas pasivos, siempre con una vía de escape cerca y algo de margen de cordura."},
+
+{id:"mirror", name:"Espejo Encantado",
+ glyph:`<rect x="6" y="3" width="12" height="18" rx="6"/><path d="M9 3v18M15 3v18" stroke-width="1"/>`,
+ desc:"Un espejo de marco oscuro que, al activarse, muestra brevemente la perspectiva o percepción del propio fantasma.",
+ mechanics:"Es una forma directa y relativamente segura de localizar la sala favorita del fantasma a través de lo que 've' el espejo.",
+ risk:"Como todo objeto maldito, su uso conlleva cierto coste de cordura y riesgo de manifestaciones inesperadas.",
+ tip:"Úsalo pronto en la investigación para ahorrar tiempo de búsqueda de la sala favorita."},
+
+{id:"paw", name:"Pata de Mono",
+ glyph:`<path d="M12 21c-3 0-5-2-5-5v-3c0-1 .5-2 1-2V6a1.5 1.5 0 0 1 3 0v4M11 10V5a1.5 1.5 0 0 1 3 0v5M14 10V6a1.5 1.5 0 0 1 3 0v5M17 12V9a1.3 1.3 0 0 1 2.5 0v7c0 3-2 5-5 5"/>`,
+ desc:"Una mano disecada con cinco dedos que se doblan uno a uno según se conceden los deseos.",
+ mechanics:"Se sostiene en la mano y se pronuncia un deseo empezando por «deseo que…» (por voz o mediante el menú de texto). El número de deseos disponibles depende de la dificultad: 5 en multiplicadores de 0 a 1x, 4 entre 1 y 2x, y 3 por encima de 2x. No se puede repetir el mismo deseo dos veces en un contrato.",
+ risk:"Ninguno de sus deseos está libre de consecuencias: revisa la tabla completa antes de arriesgarte.",
+ tip:"Prioriza los deseos con ventaja investigativa (conocimiento, ver al fantasma) antes de gastar deseos puramente defensivos. Cuenta los dedos doblados para saber cuántos te quedan.",
+ wishes:[
+  {name:"Ver al fantasma", effect:"Provoca un evento de invocación en la ubicación actual del fantasma.", cost:"Visión oscurecida unos segundos; al recuperarla, comienza una cacería."},
+  {name:"Estar a salvo", effect:"Abre el escondite oficial bloqueado o cerrado más cercano.", cost:"Estallan las luces de tu sala actual y el fantasma detecta tus aparatos electrónicos a cualquier distancia el resto del contrato."},
+  {name:"Poder irme", effect:"Desbloquea todas las puertas de salida, incluso durante una cacería.", cost:"Quedas inmóvil 5 segundos y luego más lento otros 5, con la visión afectada."},
+  {name:"Revivir a un compañero", effect:"Revive al primer jugador caído.", cost:"50% de probabilidad de que tú (u otro jugador vivo al azar) muera en el proceso."},
+  {name:"Tener conocimiento", effect:"Elimina una evidencia incorrecta de tu diario.", cost:"El fantasma se teletransporta hacia ti e inicia una cacería maldita; oído y visión afectados el resto del contrato."},
+  {name:"Tener cordura", effect:"Sube la cordura media del equipo al 50%.", cost:"La cordura caerá más rápido a partir de ese momento, y el fantasma puede desplazarse a su sala favorita."},
+  {name:"Cambiar el clima", effect:"Cambia las condiciones climáticas exteriores (sol, lluvia, nieve, niebla…).", cost:"Ceguera momentánea y 25% de pérdida de cordura; 50% de probabilidad de obtener lluvia en su lugar."},
+  {name:"Atrapar al fantasma", effect:"Lo encierra en su sala favorita 1 minuto, sin poder cazar, rondar o usar habilidades.", cost:"También te encierra a ti en tu sala actual; al terminar el minuto, cacería maldita y puertas desbloqueadas."},
+  {name:"Actividad", effect:"Duplica toda la actividad del fantasma durante 2 minutos.", cost:"La puerta principal se bloquea 2 minutos y la caja de fusibles se rompe de forma permanente."},
+  {name:"Cualquier cosa", effect:"Concede un deseo aleatorio entre los disponibles.", cost:"El mismo coste del deseo que te toque en suerte. Solo por voz."}
+ ]},
+
+{id:"tarot", name:"Cartas del Tarot",
+ glyph:`<rect x="5" y="4" width="9" height="14" rx="1" transform="rotate(-8 9.5 11)"/><rect x="10" y="5" width="9" height="14" rx="1" transform="rotate(8 14.5 12)"/>`,
+ desc:"Una baraja de 10 cartas generadas al azar; cada carta desencadena un efecto instantáneo —positivo o fatal— y se quema al usarse.",
+ mechanics:"Se recogen con la mano libre y se sacan de una en una. Cada tipo de carta tiene una probabilidad de aparición independiente, por lo que pueden repetirse o no salir nunca en una misma baraja.",
+ risk:"Al sacar las 10 cartas, la baraja desaparece y las cacerías posteriores del contrato se alargan. Es matemáticamente posible, aunque rarísimo, sacar «La Muerte» las 10 veces seguidas.",
+ tip:"Fotografía la baraja antes de usarla para conseguir dinero extra, y ten siempre un escondite cerca antes de sacar la primera carta.",
+ cards:[
+  {name:"La Muerte", chance:"10%", effect:"Inicia una cacería maldita de inmediato."},
+  {name:"El Diablo", chance:"10%", effect:"Provoca un evento fantasmal cerca del jugador más próximo al fantasma."},
+  {name:"El Ahorcado", chance:"1%", effect:"Mata instantáneamente al jugador que la saca, sin posibilidad de evitarlo."},
+  {name:"El Loco", chance:"17% (100% en cacería)", effect:"No tiene ningún efecto; simula ser otra carta hasta quemarse y revelarse."},
+  {name:"El Ermitaño", chance:"10%", effect:"Atrapa al fantasma en su sala favorita durante 1 minuto."},
+  {name:"La Torre", chance:"20%", effect:"Provoca una interacción fantasmal menor pero notable."},
+  {name:"La Rueda de la Fortuna", chance:"20%", effect:"Resta o suma un 25% de cordura al azar (llama verde = gana, roja = pierde)."},
+  {name:"El Sol", chance:"5%", effect:"Restaura la cordura del jugador al 100%."},
+  {name:"La Luna", chance:"5%", effect:"Reduce la cordura del jugador a 0%."},
+  {name:"La Sacerdotisa", chance:"2%", effect:"Revive a un jugador caído al azar (se guarda el efecto si nadie ha muerto todavía)."}
+ ]}
+];
+
+/* ============================= RENDER: EVIDENCIA ============================= */
+const evidenceGridEl = document.getElementById('evidenceGrid');
+let selectedEvidence = new Set();
+
+function renderEvidenceBar(){
+  evidenceGridEl.innerHTML = EV_ORDER.map(key=>{
+    const ev = EVIDENCE[key];
+    const on = selectedEvidence.has(key);
+    return `<button class="ev-btn ${on?'on':''}" data-ev="${key}">
+      <svg viewBox="0 0 24 24">${ev.icon}</svg>
+      <span class="ev-label">${ev.label}</span>
+    </button>`;
+  }).join('');
+  evidenceGridEl.querySelectorAll('.ev-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.ev;
+      if(selectedEvidence.has(key)) selectedEvidence.delete(key);
+      else selectedEvidence.add(key);
+      renderEvidenceBar();
+      renderGhosts();
+    });
+  });
+}
+
+/* ============================= RENDER: FANTASMAS ============================= */
+const ghostGridEl = document.getElementById('ghostGrid');
+const matchCountEl = document.getElementById('matchCount');
+const searchInputEl = document.getElementById('searchInput');
+
+function ghostMatches(g){
+  const term = searchInputEl.value.trim().toLowerCase();
+  if(term && !g.name.toLowerCase().includes(term)) return false;
+  for(const key of selectedEvidence){
+    if(!g.evidence.includes(key)) return false;
+  }
+  return true;
+}
+
+function evChip(key){
+  const ev = EVIDENCE[key];
+  return `<span class="chip"><svg viewBox="0 0 24 24">${ev.icon}</svg>${ev.short}</span>`;
+}
+
+function renderGhosts(){
+  const list = GHOSTS.filter(ghostMatches);
+  matchCountEl.textContent = list.length;
+  if(list.length===0){
+    ghostGridEl.innerHTML = `<div class="empty-msg">Ningún sospechoso encaja con esa combinación de evidencia.<br>Revisa el tablero — puede que hayas confirmado una evidencia por error.</div>`;
+    return;
+  }
+  ghostGridEl.innerHTML = list.map(g=>{
+    const num = String(GHOSTS.indexOf(g)+1).padStart(2,'0');
+    return `<article class="card" data-id="${g.id}">
+      <div class="case-no">EXPEDIENTE Nº ${num}</div>
+      <h3>${g.name}</h3>
+      <p class="teaser">${g.strength}</p>
+      <div class="chips">${g.evidence.map(evChip).join('')}</div>
+      ${g.origin?`<div class="origin-tag">◆ ${g.origin.split(':')[0]}</div>`:''}
+    </article>`;
+  }).join('');
+  ghostGridEl.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('click', ()=> openGhostModal(card.dataset.id));
+  });
+}
+
+function openGhostModal(id){
+  const g = GHOSTS.find(x=>x.id===id);
+  const num = String(GHOSTS.indexOf(g)+1).padStart(2,'0');
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <div class="case-no">EXPEDIENTE Nº ${num} / 27</div>
+      <h2>${g.name}</h2>
+      ${g.origin?`<div class="modal-origin">${g.origin}</div>`:''}
+    </div>
+    <div class="modal-body">
+      <div class="section-label">Evidencia confirmada</div>
+      <div class="evidence-row">
+        ${g.evidence.map(k=>`<span class="evidence-tag"><svg viewBox="0 0 24 24">${EVIDENCE[k].icon}</svg>${EVIDENCE[k].label}</span>`).join('')}
+        ${g.extraEvidence?`<span class="evidence-tag" style="background:var(--blood-bright)"><svg viewBox="0 0 24 24">${EVIDENCE[g.extraEvidence].icon}</svg>${EVIDENCE[g.extraEvidence].label} (falsa)</span>`:''}
+      </div>
+      ${g.speed?`<div class="speed-tag">VELOCIDAD REGISTRADA — <b>${g.speed}</b></div>`:''}
+      <div class="stamp-row">
+        <div class="stamp strength"><div class="stamp-title">Fortaleza</div><p>${g.strength}</p></div>
+        <div class="stamp weakness"><div class="stamp-title">Debilidad</div><p>${g.weakness}</p></div>
+      </div>
+      <div class="section">
+        <div class="section-label">Comportamiento observado</div>
+        <p>${g.behavior}</p>
+      </div>
+      <div class="tip-box"><b>Consejo de campo —</b> ${g.tip}</div>
+    </div>`;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+
+/* ============================= RENDER: OBJETOS MALDITOS ============================= */
+const cursedGridEl = document.getElementById('cursedGrid');
+function renderCursed(){
+  cursedGridEl.innerHTML = CURSED.map(c=>`
+    <article class="cursed-card" data-id="${c.id}">
+      <svg class="glyph" viewBox="0 0 24 24">${c.glyph}</svg>
+      <h3>${c.name}</h3>
+      <p>${c.desc}</p>
+    </article>`).join('');
+  cursedGridEl.querySelectorAll('.cursed-card').forEach(card=>{
+    card.addEventListener('click', ()=> openCursedModal(card.dataset.id));
+  });
+}
+
+function openCursedModal(id){
+  const c = CURSED.find(x=>x.id===id);
+  let extra = '';
+  if(c.wishes){
+    extra = `<div class="section"><div class="section-label">Los 10 deseos</div>
+      <table class="mini-table"><thead><tr><th>Deseo</th><th>Efecto</th><th>Coste</th></tr></thead><tbody>
+      ${c.wishes.map(w=>`<tr><td class="name-cell">${w.name}</td><td>${w.effect}</td><td>${w.cost}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  if(c.cards){
+    extra = `<div class="section"><div class="section-label">Las 10 cartas</div>
+      <table class="mini-table"><thead><tr><th>Carta</th><th>Prob.</th><th>Efecto</th></tr></thead><tbody>
+      ${c.cards.map(w=>`<tr><td class="name-cell">${w.name}</td><td class="chance">${w.chance}</td><td>${w.effect}</td></tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <div class="case-no">OBJETO MALDITO</div>
+      <h2>${c.name}</h2>
+    </div>
+    <div class="modal-body">
+      <div class="section"><div class="section-label">Qué es</div><p>${c.desc}</p></div>
+      <div class="section"><div class="section-label">Cómo funciona</div><p>${c.mechanics}</p></div>
+      <div class="risk-box"><b>Riesgo —</b> ${c.risk}</div>
+      ${extra}
+      <div class="tip-box"><b>Consejo de campo —</b> ${c.tip}</div>
+    </div>`;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalBackdrop').classList.remove('show');
+}
+document.getElementById('modalBackdrop').addEventListener('click', (e)=>{
+  if(e.target.id==='modalBackdrop') closeModal();
+});
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+/* ============================= TABS ============================= */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('tab-ghosts').style.display = tab==='ghosts' ? '' : 'none';
+    document.getElementById('tab-cursed').style.display = tab==='cursed' ? '' : 'none';
+  });
+});
+
+/* ============================= INIT ============================= */
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  selectedEvidence.clear();
+  searchInputEl.value = '';
+  renderEvidenceBar();
+  renderGhosts();
+});
+searchInputEl.addEventListener('input', renderGhosts);
+
+renderEvidenceBar();
+renderGhosts();
+renderCursed();
+</script>
+</body>
+</html>
