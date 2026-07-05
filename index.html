@@ -267,9 +267,9 @@ footer{
 <header>
   <div class="masthead-eyebrow"><span class="dot"></span> EXPEDIENTE ACTIVO · SIN CLASIFICAR</div>
   <h1 class="title">Manual de Campo del <span class="accent">Investigador Paranormal</span></h1>
-  <p class="subtitle">Referencia de campo no oficial para <b>Phasmophobia</b>: las 27 entidades conocidas, sus evidencias, fortalezas, debilidades y comportamientos verificados — más el expediente completo de los 7 objetos malditos. Filtra por evidencia como en tu diario de investigación y confirma al sospechoso antes de que él te confirme a ti.</p>
+  <p class="subtitle">Referencia de campo no oficial para <b>Phasmophobia</b>: las 29 entidades conocidas, sus evidencias, fortalezas, debilidades y comportamientos verificados — más el expediente completo de los 7 objetos malditos. Filtra por evidencia como en tu diario de investigación y confirma al sospechoso antes de que él te confirme a ti.</p>
   <div class="tabs">
-    <button class="tab-btn active" data-tab="ghosts">Fantasmas <span class="count">27</span></button>
+    <button class="tab-btn active" data-tab="ghosts">Fantasmas <span class="count">29</span></button>
     <button class="tab-btn" data-tab="cursed">Objetos Malditos <span class="count">07</span></button>
   </div>
 </header>
@@ -279,7 +279,7 @@ footer{
     <div class="board">
       <div class="board-top">
         <span class="board-title">Tablero de evidencias — marca lo confirmado</span>
-        <span class="board-count"><b id="matchCount">27</b> / 27 sospechosos</span>
+        <span class="board-count"><b id="matchCount">29</b> / 29 sospechosos</span>
       </div>
       <div class="evidence-grid" id="evidenceGrid"></div>
       <div class="board-tools">
@@ -295,7 +295,7 @@ footer{
   </section>
 </main>
 
-<footer>Manual de campo no oficial · Datos de comportamiento verificados a partir de la investigación de la comunidad · v0.15+</footer>
+<footer>Manual de campo no oficial · Datos de comportamiento verificados a partir de la investigación de la comunidad · v0.17+</footer>
 
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal" id="modalContent"></div>
@@ -316,6 +316,14 @@ const EV_ORDER = ["emf","dots","uv","freezing","orbs","writing","spiritbox"];
 
 /* ============================= FANTASMAS ============================= */
 const GHOSTS = [
+{id:"aswang", name:"Aswang", evidence:["dots","freezing","writing"],
+ strength:"Se vuelve mucho más rápido en la persecución en cuanto detecta a su objetivo: con línea de visión directa alcanza su velocidad máxima en apenas 17.3 segundos, frente a los 26 segundos habituales de la mayoría de fantasmas.",
+ weakness:"Prefiere perseguir antes que buscar: si el jugador perseguido llega a un escondite oficial (armario, taquilla) durante la cacería, esta termina de inmediato y no puede matarlo dentro de él.",
+ behavior:"Su velocidad base en cacería es de 1.53 m/s —nunca se siente lento, a diferencia del Revenant— y puede acelerar hasta 2.53 m/s. Si una cacería termina porque el jugador alcanzó un escondite oficial, en la siguiente cacería el Aswang colocará un punto de referencia directamente en esa ubicación desde el inicio, incluso durante el periodo de gracia.",
+ speed:"1.53 m/s base → 2.53 m/s máxima (17.3 s hasta el tope con línea de visión)",
+ tip:"Comparte Temperatura Bajo Cero y Escritura Fantasma con el Revenant, pero el Revenant se arrastra a 1 m/s antes de verte, mientras que el Aswang nunca se siente lento. Prueba definitiva: atráelo con incienso hasta un escondite oficial — si la cacería termina en el instante en que llega, es un Aswang confirmado.",
+ origin:"En el folclore filipino, los 'aswang' son criaturas metamorfas y malévolas de las que se decía que cazaban carne y sangre humana durante la noche."},
+
 {id:"banshee", name:"Banshee", evidence:["dots","orbs","uv"],
  strength:"Se fija en una única presa y la persigue de forma prioritaria durante las cacerías, ignorando a otros investigadores aunque estén más cerca.",
  weakness:"Su aullido es inconfundible: un Micrófono Parabólico revela un canto agudo único, y tiene mayor probabilidad de generar un evento de canto fantasmal.",
@@ -348,7 +356,7 @@ const GHOSTS = [
  strength:"Usar equipo de protección (crucifijo, incienso, sal) cerca de él lo enfurece, y ese equipo pierde efectividad mientras dura la furia.",
  weakness:"El estado de furia lo agota: tras esa fase, el equipo de protección vuelve a ser más eficaz de lo normal contra él.",
  behavior:"Alterna entre tres estados —normal, enfurecido y debilitado—. Pisar sal o recibir incienso/crucifijo lo enfurece (más rápido en la siguiente cacería); al terminar esa cacería cae a debilitado antes de normalizarse. Igual que el Wraith, no deja huellas en la sal mientras está enfurecido.",
- tip:"No lo confundas con el Wraith: comparten EMF 5 y Caja de Espíritus y ambos pueden no dejar huellas en sal. Si notas velocidades de cacería inconsistentes (rápido, luego lento), sospecha del Gallu.",
+ tip:"No lo confundas con el Espectro: comparten EMF 5 y Caja de Espíritus y ambos pueden no dejar huellas en sal. Si notas velocidades de cacería inconsistentes (rápido, luego lento), sospecha del Gallu.",
  origin:"Los 'gallu' (o galla) son demonios del inframundo en la mitología sumeria y mesopotámica."},
 
 {id:"goryo", name:"Goryo", evidence:["emf","uv","dots"],
@@ -374,12 +382,20 @@ const GHOSTS = [
  tip:"Apaga el interruptor general antes de una cacería: si deja de notarse diferencia de velocidad, era un Jinn. No lo confundas con el Raiju, que reacciona a aparatos electrónicos concretos, no al interruptor general.",
  origin:"Los 'yinn' o genios son seres sobrenaturales del folclore árabe e islámico."},
 
-{id:"mare", name:"Mare", evidence:["spiritbox","orbs","writing"],
+{id:"kormos", name:"Kormos", evidence:["orbs","spiritbox","uv"],
+ strength:"Tiene un oído extraordinario: detecta a los jugadores únicamente por el sonido de sus pasos, incluso sin línea de visión y a través de paredes.",
+ weakness:"Es prácticamente ciego: no puede detectar a un jugador que permanezca completamente quieto y en silencio, sin importar la distancia a la que esté.",
+ behavior:"Su umbral de cacería por defecto es 50% (sube a 70% si un jugador corre en su misma sala). Sin línea de visión, detecta pisadas hasta a 30 m corriendo, 15 m caminando y solo 10 m agachado; si te localiza sin verte, puede matarte con solo estar a 1.5 m de distancia, incluso a través de un muro. Al detectar un sonido acelera hasta 2.21 m/s, con un máximo de 3.65 m/s.",
+ speed:"1.7 m/s base → hasta 3.65 m/s al detectar sonido",
+ tip:"Comparte sus tres evidencias exactas con la combinación que muestra el Mimic al imitarlo (Orbes, Caja de Espíritus y UV); si además aparece Temperatura Bajo Cero, en realidad es un Mimic, no un Kormos. Para confirmarlo sin equipo: quédate completamente inmóvil y en silencio durante una cacería en campo abierto — si el fantasma pasa de largo sin reaccionar, es un Kormos. No lo confundas con la Banshee, que también puede 'ignorar' a jugadores quietos por perseguir a una única víctima fija.",
+ origin:"En el folclore túrquico, los 'kormos' son espíritus ciegos y malignos que escaparon del inframundo con la promesa de hacer el bien; si vuelven a su naturaleza maligna en el mundo mortal, quedan atrapados en él."},
+
+{id:"pesadilla", name:"Pesadilla", evidence:["spiritbox","orbs","writing"],
  strength:"Es más agresivo y caza con cordura más alta cuando está a oscuras, y apaga luces con frecuencia.",
  weakness:"Se calma notablemente si las luces permanecen encendidas.",
  behavior:"Prefiere la oscuridad y trabaja activamente para conseguirla, apagando luces más que otros tipos.",
  tip:"Mantén las luces encendidas durante toda la investigación: si la actividad y las cacerías bajan claramente, sospecha del Mare.",
- origin:"La 'mare' (origen de la palabra 'nightmare') es un espíritu del folclore germánico y escandinavo que se sienta sobre el pecho de quien duerme."},
+ origin:"(origen de la palabra 'nightmare') es un espíritu del folclore germánico y escandinavo que se sienta sobre el pecho de quien duerme."},
 
 {id:"moroi", name:"Moroi", evidence:["spiritbox","writing","freezing"],
  strength:"Se vuelve más rápido y puede maldecir a un jugador a través de la Caja de Espíritus para acelerar su pérdida de cordura, sobre todo con cordura de equipo baja.",
@@ -424,7 +440,7 @@ const GHOSTS = [
  tip:"Coloca varias fuentes de fuego encendidas cerca de la sala favorita. Si las apaga y a la tercera comienza una cacería instantánea, es un Onryo.",
  origin:"En el folclore japonés, un 'onryō' es un espíritu vengativo, a menudo femenino, que regresa por una muerte injusta."},
 
-{id:"phantom", name:"Phantom", evidence:["spiritbox","uv","dots"],
+{id:"ente", name:"Ente", evidence:["spiritbox","uv","dots"],
  strength:"Drena la cordura rápidamente cuando un jugador lo mira directamente durante un evento.",
  weakness:"Desaparece brevemente en cuanto se le toma una fotografía.",
  behavior:"Mirar de frente al Phantom durante una manifestación acelera la pérdida de cordura del jugador, pero fotografiarlo lo hace desvanecerse al instante.",
@@ -451,14 +467,14 @@ const GHOSTS = [
  tip:"Rompe la línea de visión al empezar una cacería y no la recuperes: si se ralentiza notablemente al perderte de vista, es un Revenant.",
  origin:"Un 'revenant' es, en el folclore europeo, un cadáver reanimado que regresa de la tumba con fines vengativos."},
 
-{id:"shade", name:"Shade", evidence:["emf","writing","freezing"],
+{id:"sombra", name:"Sombra", evidence:["emf","writing","freezing"],
  strength:"Es el fantasma más pasivo del juego: casi no interactúa con el entorno mientras haya un jugador en su misma sala.",
  weakness:"No puede iniciar una cacería si la cordura media del equipo supera el 35%, y su actividad cae todavía más cuantos más jugadores haya presentes.",
  behavior:"A cordura completa tiene prácticamente un 0% de probabilidad de generar un evento fantasmal, probabilidad que solo sube un 2% por cada punto de cordura perdido. Conviene salir de la sala y vigilar por cámara para conseguir evidencia.",
- tip:"Si el fantasma no interactúa con nadie presente, sal de la sala y vigila por cámara: el Shade solo se activa cuando se siente 'solo'. Reunir a todo el equipo cerca también lo inhibe.",
+ tip:"Si el fantasma no interactúa con nadie presente, sal de la sala y vigila por cámara: la Sombra solo se activa cuando se siente 'solo'. Reunir a todo el equipo cerca también lo inhibe.",
  origin:"'Shade' es un término clásico para referirse a la sombra o espectro de un difunto."},
 
-{id:"spirit", name:"Spirit", evidence:["emf","spiritbox","writing"],
+{id:"espiritu", name:"Espiritu", evidence:["emf","spiritbox","writing"],
  strength:"No tiene ninguna fortaleza especial: es el fantasma base del juego, sin mecánicas únicas añadidas.",
  weakness:"El efecto cegador de la barrita de incienso dura más tiempo sobre él que sobre la mayoría de los demás tipos.",
  behavior:"Es el arquetipo original de fantasma: sin mecánica especial de velocidad, comportamiento o entorno, suele identificarse por descarte una vez confirmadas sus tres evidencias.",
@@ -473,21 +489,21 @@ const GHOSTS = [
 {id:"mimic", name:"The Mimic", evidence:["spiritbox","uv","freezing"], extraEvidence:"orbs",
  strength:"Copia el comportamiento, velocidad y umbrales de cacería de otro tipo de fantasma, cambiando de 'modelo a imitar' cada 30 segundos a 2 minutos (nunca durante una cacería).",
  weakness:"No puede copiar los tipos de evidencia reales de otros fantasmas, y siempre deja Orbes Fantasma de más aunque esa no sea una de sus evidencias.",
- behavior:"Junto a The Twins, es de los más difíciles de identificar: puede parecer un Poltergeist lanzando objetos o un Revenant acelerando en cacería, pero su combinación real de evidencia (Caja de Espíritus, UV y Temperatura Bajo Cero) nunca cambia.",
+ behavior:"Junto a los gemelos, es de los más difíciles de identificar: puede parecer un Poltergeist lanzando objetos o un Revenant acelerando en cacería, pero su combinación real de evidencia (Caja de Espíritus, UV y Temperatura Bajo Cero) nunca cambia.",
  tip:"Si el comportamiento apunta a un tipo de fantasma pero también ves Orbes Fantasma que no encajan con esa evidencia esperada, sospecha del Mimic."},
 
-{id:"the-twins", name:"The Twins", evidence:["emf","spiritbox","freezing"],
+{id:"gemelos", name:"Gemelos", evidence:["emf","spiritbox","freezing"],
  strength:"En realidad son dos entidades que pueden interactuar con el entorno en dos ubicaciones distintas al mismo tiempo.",
  weakness:"Su comportamiento resulta inconsistente porque una de las dos 'mitades' puede ser más rápida o activa que la otra, dificultando fiarse de una sola observación.",
  behavior:"Se manifiestan como dos entidades gemelas que pueden actuar simultáneamente en distintos puntos del mapa, provocando interacciones dobles difíciles de explicar con un fantasma normal.",
  tip:"Si detectas dos interacciones simultáneas en ubicaciones distintas al mismo tiempo (por ejemplo, dos EMF 5 a la vez en salas diferentes), es una señal fuerte de The Twins."},
 
-{id:"wraith", name:"Wraith", evidence:["emf","spiritbox","dots"],
+{id:"espectro", name:"Espectro", evidence:["emf","spiritbox","dots"],
  strength:"Puede teletransportarse junto a un jugador (con un pico de EMF nivel 2 en el momento del salto) y atravesar paredes fuera de eventos fantasmales.",
  weakness:"Nunca deja huellas al caminar sobre sal esparcida, a diferencia de cualquier otro tipo.",
  behavior:"Es el único fantasma que puede desplazarse literalmente a través de las paredes en su comportamiento normal (no durante un evento fantasmal), y su teletransporte junto a los jugadores lo hace especialmente impredecible.",
  tip:"Esparce sal en los pasillos de la sala favorita: si tras varias interacciones nunca aparecen huellas, tienes un Wraith casi confirmado.",
- origin:"En el folclore escocés, un 'wraith' es la aparición espectral de una persona, a veces vista justo antes o después de su muerte."},
+ origin:"En el folclore escocés, un 'espectro' es la aparición espectral de una persona, a veces vista justo antes o después de su muerte."},
 
 {id:"yokai", name:"Yokai", evidence:["spiritbox","orbs","dots"],
  strength:"Puede iniciar cacerías antes de lo normal si los jugadores hablan cerca de él (su umbral de cordura para cazar sube hasta 80% con voz cercana).",
@@ -652,7 +668,7 @@ function openGhostModal(id){
   modal.innerHTML = `
     <div class="modal-head">
       <button class="modal-close" id="modalCloseBtn">&times;</button>
-      <div class="case-no">EXPEDIENTE Nº ${num} / 27</div>
+      <div class="case-no">EXPEDIENTE Nº ${num} / 29</div>
       <h2>${g.name}</h2>
       ${g.origin?`<div class="modal-origin">${g.origin}</div>`:''}
     </div>
