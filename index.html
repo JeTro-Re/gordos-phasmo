@@ -173,6 +173,21 @@ main{position:relative; z-index:2; padding:32px 6vw 90px;}
 .cursed-card h3{font-family:'Special Elite',monospace; font-size:19px; margin:0 0 8px; color:#f0e2c4;}
 .cursed-card p{font-size:13px; color:#b9ab8c; line-height:1.45; margin:0;}
 
+/* ---------- field tests grid ---------- */
+.tests-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
+.test-card{
+  background:linear-gradient(160deg,#10160f,#0c110d);
+  border:1px solid #2a332b; padding:20px 18px; cursor:pointer; position:relative;
+  transition:transform .14s ease, border-color .14s ease;
+}
+.test-card:hover{transform:translateY(-3px); border-color:var(--scan);}
+.test-card .glyph{width:34px;height:34px; stroke:var(--scan-bright); fill:none; stroke-width:1.5; margin-bottom:10px; filter:drop-shadow(0 0 6px rgba(127,206,122,.4));}
+.test-card h3{font-family:'Special Elite',monospace; font-size:18px; margin:0 0 8px; color:var(--paper);}
+.test-card p{font-size:12.8px; color:#a9b3a5; line-height:1.45; margin:0;}
+.verdict-cell{font-weight:700; color:var(--blood-bright);}
+.note-box{background:#efe6cb; border-left:4px solid var(--cold); padding:12px 16px; font-size:13.5px; line-height:1.55; margin-top:16px;}
+.note-box b{color:var(--ink);}
+
 /* ---------- modal ---------- */
 .modal-backdrop{
   position:fixed; inset:0; background:rgba(4,6,4,.82); z-index:50; display:none;
@@ -271,6 +286,7 @@ footer{
   <div class="tabs">
     <button class="tab-btn active" data-tab="ghosts">Fantasmas <span class="count">29</span></button>
     <button class="tab-btn" data-tab="cursed">Objetos Malditos <span class="count">07</span></button>
+    <button class="tab-btn" data-tab="tests">Pruebas de Campo <span class="count">20</span></button>
   </div>
 </header>
 
@@ -292,6 +308,18 @@ footer{
 
   <section id="tab-cursed" style="display:none;">
     <div class="cursed-grid" id="cursedGrid"></div>
+  </section>
+
+  <section id="tab-tests" style="display:none;">
+    <div class="board" style="margin-bottom:22px;">
+      <div class="board-top" style="margin-bottom:0;">
+        <span class="board-title">Protocolo de descarte — modo pesadilla / sin evidencia</span>
+      </div>
+      <div class="board-tools" style="margin-top:12px;">
+        <p style="margin:0; font-size:13px; color:#a9b3a5; line-height:1.55;">Cada prueba se puede ejecutar sin usar equipo de evidencia. Corre varias a la vez y cruza resultados: entre 2-3 pruebas suelen bastar para acorralar al sospechoso en Pesadilla o Insanidad.</p>
+      </div>
+    </div>
+    <div class="tests-grid" id="testsGrid"></div>
   </section>
 </main>
 
@@ -596,7 +624,167 @@ const CURSED = [
  ]}
 ];
 
-/* ============================= RENDER: EVIDENCIA ============================= */
+/* ============================= PRUEBAS DE CAMPO (SIN EVIDENCIA) ============================= */
+const TESTS = [
+{id:"salt", name:"Prueba de la Sal",
+ glyph:`<path d="M6 20 L10 4 L14 4 L18 20 Z"/><path d="M8 14 h8" stroke-width="1"/>`,
+ howTo:"Esparce sal en los pasillos de acceso a la sala favorita y deja que el fantasma camine sobre ella en varias interacciones distintas.",
+ outcomes:[
+  {result:"Nunca deja huellas, en ninguna interacción repetida", verdict:"Espectro (Wraith)"},
+  {result:"No deja huellas solo en algunas cacerías, junto a velocidades inconsistentes entre una y otra", verdict:"Gallu (no pisa la sal mientras está enfurecido)"},
+  {result:"Deja huellas siempre, sin excepción", verdict:"Descarta Espectro y Gallu enfurecido"}
+ ],
+ note:"Repite la prueba 2-3 veces antes de descartar: una sola pasada sin huellas puede ser casualidad de trayectoria."},
+
+{id:"standstill", name:"Prueba de Quedarse Quieto",
+ glyph:`<circle cx="12" cy="6" r="2.5"/><path d="M12 9 v7 M9 12 h6 M10 20 l2-4 2 4"/>`,
+ howTo:"Durante una cacería, párate en un espacio abierto sin moverte ni hablar. Idealmente, que todo el equipo lo haga a la vez.",
+ outcomes:[
+  {result:"El fantasma pasa de largo sin reaccionar, ignorando a todos por igual", verdict:"Kormos (es ciego, solo detecta pasos)"},
+  {result:"Ignora a todos menos a un jugador fijo, aunque ese jugador esté más lejos", verdict:"Banshee (persigue a una única víctima elegida al inicio)"},
+  {result:"Se ralentiza notablemente respecto a cuando hay movimiento cerca", verdict:"Dayan (baja a 1.2 m/s y su umbral de cacería cae a 45%)"}
+ ],
+ note:"La clave para no confundir Kormos con Banshee: si ignora a UNO en concreto, es Banshee; si ignora a TODOS por igual, es Kormos."},
+
+{id:"los", name:"Prueba de Línea de Visión",
+ glyph:`<path d="M2 12 C6 6 18 6 22 12 C18 18 6 18 2 12 Z"/><circle cx="12" cy="12" r="2.5"/>`,
+ howTo:"En cuanto empiece una cacería, rompe el contacto visual con el fantasma (esquina, puerta) y no lo recuperes.",
+ outcomes:[
+  {result:"Se vuelve extremadamente lento al perder la visión, casi paso de tortuga", verdict:"Revenant (≈1 m/s sin línea de visión)"},
+  {result:"Sigue moviéndose relativamente rápido incluso sin verte", verdict:"Aswang (nunca baja de 1.53 m/s)"},
+  {result:"Se acerca rápido de lejos pero se frena mucho (≈0.4 m/s) al estar cerca, te vea o no", verdict:"Deogen (siempre sabe dónde estás, pero se frena en distancia corta)"}
+ ],
+ note:"Revenant y Aswang comparten Temperatura Bajo Cero y Escritura Fantasma como evidencia; la velocidad base antes de verte es lo que los distingue."},
+
+{id:"breaker", name:"Prueba del Interruptor General",
+ glyph:`<rect x="7" y="4" width="10" height="16" rx="1"/><path d="M12 8 v3 M10 15 h4" stroke-width="2"/>`,
+ howTo:"Apaga la caja de fusibles antes de una cacería y observa si cambia la velocidad del fantasma.",
+ outcomes:[
+  {result:"Pierde por completo su impulso de velocidad al apagar la luz general", verdict:"Jinn"},
+  {result:"No cambia con el interruptor, pero acelera cerca de aparatos electrónicos concretos encendidos", verdict:"Raiju"}
+ ]},
+
+{id:"temp", name:"Prueba de Temperatura",
+ glyph:`<path d="M12 2v14M8 8l8 4M16 8l-8 4"/><circle cx="12" cy="19" r="3"/>`,
+ howTo:"Con el interruptor general apagado, deja que la sala se enfríe y observa la velocidad del fantasma.",
+ outcomes:[
+  {result:"Acelera notablemente cuanto más fría está la sala, hasta 2.7 m/s", verdict:"Hantu"}
+ ]},
+
+{id:"fire", name:"Prueba del Fuego",
+ glyph:`<path d="M12 3 C9 8 7 10 7 13 a5 5 0 0 0 10 0 c0-2-1-3-2-4 c0 2-1 3-2 2 c-1-1 0-3-1-8Z"/>`,
+ howTo:"Coloca varias fuentes de fuego encendidas (velas, faroles) cerca de la sala favorita.",
+ outcomes:[
+  {result:"Al apagar tres llamas, inicia una cacería instantánea sin importar la cordura", verdict:"Onryo"},
+  {result:"Es notablemente menos probable que cace mientras haya fuego encendido cerca", verdict:"Refuerza la sospecha de Onryo"}
+ ]},
+
+{id:"light", name:"Prueba de la Luz",
+ glyph:`<circle cx="12" cy="10" r="5"/><path d="M9 18h6M10 21h4M12 2v2M4 10H2M22 10h-2M5.6 3.6l1.4 1.4M18.4 3.6l-1.4 1.4"/>`,
+ howTo:"Mantén todas las luces encendidas durante toda la investigación, sin dejar que el fantasma las apague.",
+ outcomes:[
+  {result:"La actividad y las cacerías bajan claramente respecto a lo habitual", verdict:"Pesadilla / Mare (prefiere la oscuridad y suele apagar luces)"}
+ ]},
+
+{id:"group", name:"Prueba de Grupo",
+ glyph:`<circle cx="8" cy="8" r="2.3"/><circle cx="16" cy="8" r="2.3"/><path d="M4 19c0-3 2-5 4-5s4 2 4 5M12 19c0-3 2-5 4-5s4 2 4 5"/>`,
+ howTo:"Reúne a todo el equipo cerca de la sala favorita e investiguen juntos durante un rato.",
+ outcomes:[
+  {result:"La actividad se dispara claramente con más gente presente", verdict:"Oni"},
+  {result:"Casi no interactúa ni caza con el equipo reunido y cordura por encima del 35%", verdict:"Sombra / Shade (necesita sentirse 'solo' para activarse)"}
+ ]},
+
+{id:"hidingspot", name:"Prueba del Escondite",
+ glyph:`<rect x="5" y="4" width="14" height="17" rx="1"/><path d="M9 4v17M15 4v17" stroke-width="1"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>`,
+ howTo:"Deja que el fantasma te persiga durante una cacería hasta un escondite oficial (armario, taquilla).",
+ outcomes:[
+  {result:"La cacería termina de inmediato en cuanto llegas al escondite", verdict:"Aswang (único incapaz de matar dentro de un escondite oficial)"}
+ ]},
+
+{id:"photo", name:"Prueba de la Cámara y la Mirada",
+ glyph:`<rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M9 7l1.5-2h3L15 7"/>`,
+ howTo:"Durante un evento fantasmal, primero míralo de frente unos segundos y luego fotografíalo.",
+ outcomes:[
+  {result:"Tu cordura cae muy rápido al mirarlo de frente", verdict:"Ente / Phantom"},
+  {result:"Desaparece al instante en cuanto lo fotografías", verdict:"Ente / Phantom (confirma junto al punto anterior)"}
+ ]},
+
+{id:"objects", name:"Prueba de los Objetos",
+ glyph:`<rect x="4" y="14" width="6" height="6"/><circle cx="17" cy="8" r="3"/><path d="M9 14 L15 9" stroke-width="1"/>`,
+ howTo:"Observa una interacción del fantasma con objetos sueltos en la habitación, o retíralos para comparar.",
+ outcomes:[
+  {result:"Lanza varios objetos a la vez en una sola interacción", verdict:"Poltergeist"}
+ ]},
+
+{id:"sanity70", name:"Prueba de Cordura Alta",
+ glyph:`<path d="M12 21s-7-4.5-7-10a5 5 0 0 1 7-4.6A5 5 0 0 1 19 11c0 5.5-7 10-7 10Z"/>`,
+ howTo:"Presta atención a la cordura media del equipo en el momento exacto en que empieza una cacería, y prueba un crucifijo cerca de la sala favorita.",
+ outcomes:[
+  {result:"La cacería ocurre con la cordura del equipo por encima del 70%", verdict:"Demonio"},
+  {result:"El crucifijo parece tener un radio de efecto mayor de lo normal", verdict:"Refuerza la sospecha de Demonio"}
+ ]},
+
+{id:"voice", name:"Prueba del Chat de Voz",
+ glyph:`<path d="M8 5h5a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3H9l-3 3v-3H8a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3Z"/>`,
+ howTo:"Habla por chat de voz cerca de la sala favorita del fantasma y observa si eso adelanta una cacería.",
+ outcomes:[
+  {result:"Las cacerías empiezan antes de lo normal justo cuando el equipo habla cerca de él", verdict:"Yokai (umbral de cacería sube hasta 80% con voz cercana)"},
+  {result:"Durante una cacería, alejarte un poco basta para que deje de detectarte por sonido", verdict:"Refuerza la sospecha de Yokai"}
+ ]},
+
+{id:"timing", name:"Prueba del Cronómetro",
+ glyph:`<circle cx="12" cy="13" r="8"/><path d="M12 13V8M9 2h6" stroke-width="2"/>`,
+ howTo:"Compara el nivel de actividad del fantasma en distintos momentos del contrato (el reloj, no la cordura).",
+ outcomes:[
+  {result:"Muy activo al principio, se apaga con el paso de los minutos", verdict:"Thaye (se debilita con el tiempo de contrato)"},
+  {result:"Alterna entre agresivo y calmado con un patrón de ~2 minutos, incluso a mitad de una cacería", verdict:"Obambo"}
+ ]},
+
+{id:"incense", name:"Prueba del Incienso",
+ glyph:`<path d="M12 3v6M12 9c-2 2-2 4 0 6s2 4 0 6M8 9c-1.5 2-1.5 3 0 5M16 9c1.5 2 1.5 3 0 5" stroke-width="1.3"/>`,
+ howTo:"Usa una barrita de incienso sobre el fantasma y cronometra cuánto dura su efecto cegador o de contención.",
+ outcomes:[
+  {result:"El efecto de ceguera dura notablemente más de lo normal", verdict:"Moroi o Espíritu (diferéncialos: Moroi maldice por Caja de Espíritus a baja cordura; Espíritu no muestra ninguna otra mecánica especial)"},
+  {result:"Queda atrapado dentro de su propia sala fantasma durante 90 segundos", verdict:"Yurei (mecánica única, no solo ceguera)"}
+ ]},
+
+{id:"fingerprint", name:"Prueba de la Huella",
+ glyph:`<path d="M12 3 C 7 3 5 7 5 11 C5 15 8 18 8 21 M12 3 C17 3 19 7 19 11 C19 15 16 18 16 21 M12 6 C9 6 8 9 8 11 C8 14 10 15 10 18 M12 6 C15 6 16 9 16 11 C16 14 14 15 14 18"/>`,
+ howTo:"Examina de cerca cualquier huella UV que deje el fantasma, sobre todo en interruptores de luz.",
+ outcomes:[
+  {result:"La huella tiene seis dedos en vez de cinco", verdict:"Obake (confirmado al instante)"}
+ ]},
+
+{id:"dotscam", name:"Prueba del D.O.T.S. por Cámara",
+ glyph:`<circle cx="6" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="6" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="18" r="1.3" fill="currentColor" stroke="none"/>`,
+ howTo:"Coloca una cámara de vídeo apuntando al proyector D.O.T.S. y sal físicamente de la sala.",
+ outcomes:[
+  {result:"La silueta solo aparece en el monitor, nunca a simple vista estando presente", verdict:"Goryo"}
+ ]},
+
+{id:"simultaneous", name:"Prueba de Interacciones Simultáneas",
+ glyph:`<circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/>`,
+ howTo:"Vigila varias salas a la vez con cámaras adicionales durante los eventos fantasmales.",
+ outcomes:[
+  {result:"Dos interacciones ocurren al mismo tiempo en ubicaciones distintas del mapa", verdict:"Gemelos / The Twins"}
+ ]},
+
+{id:"consistency", name:"Prueba de Consistencia entre Cacerías",
+ glyph:`<path d="M4 18 L9 10 L13 14 L20 5"/><circle cx="9" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="13" cy="14" r="1.3" fill="currentColor" stroke="none"/>`,
+ howTo:"Cronometra y compara la velocidad del fantasma en al menos 2-3 cacerías distintas.",
+ outcomes:[
+  {result:"Velocidad inconsistente sin relación clara con cordura, distancia o tiempo", verdict:"Gallu (alterna entre normal, enfurecido y debilitado)"},
+  {result:"El comportamiento parece cambiar de un tipo de fantasma a otro cada 30 s-2 min, siempre con Orbes Fantasma de más", verdict:"Mimic"}
+ ]},
+
+{id:"parabolic", name:"Prueba del Micrófono Parabólico",
+ glyph:`<path d="M3 14 a9 9 0 0 1 18 0" /><path d="M12 14v6M9 20h6"/>`,
+ howTo:"Usa el Micrófono Parabólico para escuchar sonidos paranormales a distancia, incluso lejos de la sala favorita.",
+ outcomes:[
+  {result:"Sonidos paranormales mucho más frecuentes de lo normal", verdict:"Myling (compensa ser más silencioso en cacería con más actividad sonora general)"},
+  {result:"Un canto agudo o aullido distintivo, sobre todo si persigue siempre al mismo jugador", verdict:"Banshee"}
+ ]}
+];
 const evidenceGridEl = document.getElementById('evidenceGrid');
 let selectedEvidence = new Set();
 
@@ -743,6 +931,42 @@ function openCursedModal(id){
 function closeModal(){
   document.getElementById('modalBackdrop').classList.remove('show');
 }
+
+/* ============================= RENDER: PRUEBAS DE CAMPO ============================= */
+const testsGridEl = document.getElementById('testsGrid');
+function renderTests(){
+  testsGridEl.innerHTML = TESTS.map(t=>`
+    <article class="test-card" data-id="${t.id}">
+      <svg class="glyph" viewBox="0 0 24 24">${t.glyph}</svg>
+      <h3>${t.name}</h3>
+      <p>${t.howTo}</p>
+    </article>`).join('');
+  testsGridEl.querySelectorAll('.test-card').forEach(card=>{
+    card.addEventListener('click', ()=> openTestModal(card.dataset.id));
+  });
+}
+
+function openTestModal(id){
+  const t = TESTS.find(x=>x.id===id);
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-head">
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+      <div class="case-no">PRUEBA DE CAMPO · SIN EVIDENCIA</div>
+      <h2>${t.name}</h2>
+    </div>
+    <div class="modal-body">
+      <div class="section"><div class="section-label">Cómo hacerla</div><p>${t.howTo}</p></div>
+      <div class="section"><div class="section-label">Resultados posibles</div>
+        <table class="mini-table"><thead><tr><th>Observas esto…</th><th>…entonces sospecha de</th></tr></thead><tbody>
+        ${t.outcomes.map(o=>`<tr><td>${o.result}</td><td class="verdict-cell">${o.verdict}</td></tr>`).join('')}
+        </tbody></table>
+      </div>
+      ${t.note?`<div class="note-box"><b>Aclaración —</b> ${t.note}</div>`:''}
+    </div>`;
+  document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('modalBackdrop').classList.add('show');
+}
 document.getElementById('modalBackdrop').addEventListener('click', (e)=>{
   if(e.target.id==='modalBackdrop') closeModal();
 });
@@ -756,6 +980,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     const tab = btn.dataset.tab;
     document.getElementById('tab-ghosts').style.display = tab==='ghosts' ? '' : 'none';
     document.getElementById('tab-cursed').style.display = tab==='cursed' ? '' : 'none';
+    document.getElementById('tab-tests').style.display = tab==='tests' ? '' : 'none';
   });
 });
 
@@ -771,6 +996,7 @@ searchInputEl.addEventListener('input', renderGhosts);
 renderEvidenceBar();
 renderGhosts();
 renderCursed();
+renderTests();
 </script>
 </body>
 </html>
